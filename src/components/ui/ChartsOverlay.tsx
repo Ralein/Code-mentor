@@ -164,7 +164,7 @@ export function ChartsOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: (
                         <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden border border-white/5">
                            <motion.div 
                              initial={{ width: 0 }}
-                             animate={{ width: \`\${item.progress}%\` }}
+                             animate={{ width: `${item.progress}%` }}
                              transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
                              className="h-full bg-accent relative"
                            >
