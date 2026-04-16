@@ -127,7 +127,7 @@ export function CommandPalette() {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98, y: -10 }}
         transition={{ duration: 0.15, ease: "easeOut" }}
-        className="w-full max-w-[600px] bg-[#171717] rounded-xl shadow-2xl border border-white/10 overflow-hidden pointer-events-auto"
+        className="relative z-10 w-full max-w-[600px] bg-[#171717] rounded-xl shadow-2xl border border-white/10 overflow-hidden pointer-events-auto"
       >
         <div className="flex items-center px-4 border-b border-white/10">
           <Search className="w-5 h-5 text-slate-500 mr-3" />

@@ -4,7 +4,6 @@ import React, { useState, useMemo } from "react";
 import { 
   Upload, 
   History, 
-  Settings, 
   Search, 
   BookMarked,
   Zap,
@@ -124,13 +123,6 @@ export function TopBar() {
             title="History"
           >
             <History className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => dispatch({ type: "SET_SETTINGS_OPEN", payload: true })}
-            className="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-md transition-all"
-            title="Settings"
-          >
-            <Settings className="w-5 h-5" />
           </button>
         </div>
       </div>
