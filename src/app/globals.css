@@ -70,3 +70,12 @@ body {
 .cursor-blink {
   animation: blink 1s step-end infinite;
 }
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-\\[shimmer_2s_infinite\\] {
+  animation: shimmer 2s infinite linear;
+}

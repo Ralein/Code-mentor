@@ -81,7 +81,7 @@ export function TopBar() {
         >
           <Search className="w-3.5 h-3.5" />
           <span>Search or command...</span>
-          <kbd className="ml-2 px-1.5 py-0.5 rounded bg-black/50 border border-white/10 border-b-2 font-mono text-[10px]">⌘K</kbd>
+          <kbd className="ml-2 px-1.5 py-0.5 rounded bg-black/50 border border-white/10 border-b-2 font-mono text-[10px]">Ctrl/⌘ K</kbd>
         </button>
 
         <div className="flex items-center gap-1">

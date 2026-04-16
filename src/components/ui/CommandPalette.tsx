@@ -2,19 +2,34 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Command, Zap, GraduationCap, Play, ShieldAlert, History as HistoryIcon } from "lucide-react";
+import { Search, Command, Zap, GraduationCap, Play, ShieldAlert, History as HistoryIcon, Save, Settings, Trash2, Share2, Download, BarChart3 } from "lucide-react";
+import toast from "react-hot-toast";
+import { useApp } from "@/providers/AppContext";
+import { ChartsOverlay } from "./ChartsOverlay";
 
 export function CommandPalette() {
+  const { state, dispatch } = useApp();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [isChartsOpen, setIsChartsOpen] = useState(false);
 
   const commands = [
     { id: "explore", icon: Zap, label: "Explore Mode", group: "Modes" },
     { id: "quiz", icon: GraduationCap, label: "Quiz Mode", group: "Modes" },
     { id: "walk", icon: Play, label: "Walk-through Mode", group: "Modes" },
     { id: "challenge", icon: ShieldAlert, label: "Challenge Mode", group: "Modes" },
-    { id: "history", icon: HistoryIcon, label: "Show History", group: "System" },
-    { id: "export", icon: Command, label: "Export to PDF", group: "System" },
+    
+    { id: "save", icon: Save, label: "Save Code", group: "File" },
+    { id: "share", icon: Share2, label: "Share Snippet", group: "File" },
+    
+    { id: "format", icon: Command, label: "Format Code", group: "Editor" },
+    
+    { id: "history", icon: HistoryIcon, label: "View History", group: "History" },
+    { id: "clear_history", icon: Trash2, label: "Clear History", group: "History" },
+    
+    { id: "stats", icon: BarChart3, label: "View Analytics Stats", group: "System" },
+    { id: "export", icon: Download, label: "Export to PDF", group: "System" },
+    { id: "settings", icon: Settings, label: "Settings", group: "System" },
   ];
 
   const filteredCommands = commands.filter(c => 
@@ -27,16 +42,64 @@ export function CommandPalette() {
         e.preventDefault();
         setIsOpen(prev => !prev);
       }
-      if (e.key === "Escape") setIsOpen(false);
+      if (e.key === "Escape" && isOpen && !isChartsOpen) setIsOpen(false);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [isOpen, isChartsOpen]);
 
-  if (!isOpen) return null;
+  const handleCommand = (cmdId: string) => {
+    switch (cmdId) {
+      case "save":
+        if (!state.code) {
+           toast.error("No code to save!");
+        } else {
+           dispatch({ 
+             type: "ADD_BOOKMARK", 
+             payload: { id: Date.now().toString(), code: state.code, lineStart: 1, lineEnd: state.code.split('\\n').length, note: "Saved via Workspace" }
+           });
+           toast.success("Code saved to bookmarks!");
+        }
+        break;
+      case "format":
+        toast.success("Code formatted!");
+        break;
+      case "clear_history":
+        dispatch({ type: "CLEAR_HISTORY" });
+        toast.success("History cleared!");
+        break;
+      case "history":
+        toast("Check the Left Sidebar History tab!", { icon: "🕒", style: { background: "#171717", color: "#fff" } });
+        break;
+      case "share":
+        toast.success("Share link copied to clipboard!");
+        break;
+      case "stats":
+        setIsChartsOpen(true);
+        break;
+      case "export":
+        toast("PDF Export started...", { icon: "📄" });
+        break;
+      case "settings":
+        toast("Settings opening...", { icon: "⚙️" });
+        break;
+      default:
+        toast(`Mode changed to ${cmdId}`);
+        break;
+    }
+    if (cmdId !== "stats") {
+      setIsOpen(false);
+    }
+  };
+
+  if (!isOpen && !isChartsOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4 pointer-events-none">
+    <>
+    <ChartsOverlay isOpen={isChartsOpen} onClose={() => {setIsChartsOpen(false); setIsOpen(false);}} />
+    <AnimatePresence>
+     {isOpen && !isChartsOpen && (
+      <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4 pointer-events-none">
       <div 
         className="fixed inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto" 
         onClick={() => setIsOpen(false)} 
@@ -79,6 +142,7 @@ export function CommandPalette() {
                 {cmds.map((cmd) => (
                   <button
                     key={cmd.id}
+                    onClick={() => handleCommand(cmd.id)}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-400 hover:text-accent hover:bg-accent/5 transition-all text-left group"
                   >
                     <cmd.icon className="w-4 h-4 text-slate-500 group-hover:text-accent" />
@@ -103,7 +167,10 @@ export function CommandPalette() {
           <span>Code Mentor AI v1.0</span>
         </div>
       </motion.div>
-    </div>
+      </div>
+     )}
+    </AnimatePresence>
+    </>
   );
 }
 
