@@ -51,7 +51,8 @@ type AppAction =
   | { type: "SEND_MESSAGE"; payload: Message }
   | { type: "SET_CHAT_OPEN"; payload: boolean }
   | { type: "SET_ACTIVE_EXPLANATION"; payload: any | null }
-  | { type: "CLEAR_MESSAGES" };
+  | { type: "CLEAR_MESSAGES" }
+  | { type: "CLEAR_HISTORY" };
 
 const initialState: AppState = {
   code: "",
@@ -95,6 +96,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, activeExplanation: action.payload };
     case "CLEAR_MESSAGES":
       return { ...state, messages: [] };
+    case "CLEAR_HISTORY":
+      return { ...state, history: [] };
     default:
       return state;
   }
