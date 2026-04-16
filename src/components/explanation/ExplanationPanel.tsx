@@ -15,6 +15,22 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
+import { Skeleton } from "@/components/ui/Skeleton";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+};
 
 interface ExplanationData {
   plainEnglish: string;
@@ -146,102 +162,118 @@ export function ExplanationPanel() {
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-8">
-        <AnimatePresence mode="popLayout">
-          {/* Plain English Section */}
-          {(data.plainEnglish || isStreaming) && (
-            <motion.section
-              key="plain-english"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-3"
+        <AnimatePresence mode="wait">
+          {isStreaming && !data.plainEnglish ? (
+            <motion.div 
+              key="skeletons"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="space-y-8"
             >
-              <div className="flex items-center gap-2 text-white">
-                <BookOpen className="w-4 h-4 text-blue-400" />
-                <h4 className="text-[11px] font-bold uppercase tracking-wider">Concept</h4>
-              </div>
-              <div className="text-sm text-slate-300 leading-relaxed font-sans bg-white/5 p-4 rounded-xl border border-white/5">
-                {data.plainEnglish || <Loader2 className="w-4 h-4 animate-spin opacity-20" />}
-              </div>
-            </motion.section>
-          )}
-
-          {/* Deep Dive Section */}
-          {(data.deepDive || isStreaming) && (
-            <motion.section
-              key="deep-dive"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="space-y-3"
+              {[1, 2, 3].map(i => (
+                <div key={i} className="space-y-3">
+                  <Skeleton width="100px" height="12px" />
+                  <Skeleton height="80px" rounded="rounded-xl" />
+                </div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="content"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="space-y-8"
             >
-              <div className="flex items-center gap-2 text-white">
-                <Terminal className="w-4 h-4 text-purple-400" />
-                <h4 className="text-[11px] font-bold uppercase tracking-wider">Technical Breakdown</h4>
-              </div>
-              <div className="text-sm text-slate-400 leading-relaxed font-mono whitespace-pre-wrap">
-                {data.deepDive}
-              </div>
-            </motion.section>
-          )}
-
-          {/* Code Example Section */}
-          {(data.example || isStreaming) && (
-             <motion.section
-              key="example"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-3"
-             >
-                <div className="flex items-center justify-between">
+              {/* Plain English Section */}
+              {data.plainEnglish && (
+                <motion.section variants={itemVariants} className="space-y-3">
                   <div className="flex items-center gap-2 text-white">
-                    <Lightbulb className="w-4 h-4 text-accent" />
-                    <h4 className="text-[11px] font-bold uppercase tracking-wider">Application</h4>
+                    <BookOpen className="w-4 h-4 text-blue-400" />
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider">Concept</h4>
                   </div>
-                  <button onClick={() => {
-                    navigator.clipboard.writeText(data.example || "");
-                    toast.success("Copied to clipboard");
-                  }} className="text-slate-500 hover:text-white transition-colors">
-                    <Copy className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                <div className="bg-black border border-white/10 rounded-lg p-3 font-mono text-[12px] overflow-x-auto text-accent-soft/80">
-                  <pre><code>{data.example}</code></pre>
-                </div>
-             </motion.section>
-          )}
+                  <div className="text-sm text-slate-300 leading-relaxed font-sans bg-white/5 p-4 rounded-xl border border-white/5">
+                    {data.plainEnglish}
+                  </div>
+                </motion.section>
+              )}
 
-          {/* Related Concepts */}
-          {(data.relatedConcepts?.length || 0) > 0 && (
-            <motion.section
-              key="related"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="space-y-3 pt-4 border-t border-white/5"
-            >
-              <div className="flex items-center gap-2 text-white">
-                <Link2 className="w-3.5 h-3.5 text-slate-500" />
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Related Concepts</h4>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {data.relatedConcepts?.map((concept, i) => (
-                  <button key={i} className="px-2 py-1 rounded-full text-[10px] bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10 hover:text-white hover:border-accent/40 transition-all flex items-center gap-1">
-                    {concept}
-                    <ChevronRight className="w-2.5 h-2.5" />
-                  </button>
-                ))}
-              </div>
-            </motion.section>
+              {/* Deep Dive Section */}
+              {data.deepDive && (
+                <motion.section variants={itemVariants} className="space-y-3">
+                  <div className="flex items-center gap-2 text-white">
+                    <Terminal className="w-4 h-4 text-purple-400" />
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider">Technical Breakdown</h4>
+                  </div>
+                  <div className="text-sm text-slate-400 leading-relaxed font-mono whitespace-pre-wrap">
+                    {data.deepDive}
+                  </div>
+                </motion.section>
+              )}
+
+              {/* Code Example Section */}
+              {data.example && (
+                 <motion.section variants={itemVariants} className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-white">
+                        <Lightbulb className="w-4 h-4 text-accent" />
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider">Application</h4>
+                      </div>
+                      <button onClick={() => {
+                        navigator.clipboard.writeText(data.example || "");
+                        toast.success("Copied to clipboard");
+                      }} className="text-slate-500 hover:text-white transition-colors">
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="bg-black border border-white/10 rounded-lg p-3 font-mono text-[12px] overflow-x-auto text-accent-soft/80">
+                      <pre><code>{data.example}</code></pre>
+                    </div>
+                 </motion.section>
+              )}
+
+              {/* Related Concepts */}
+              {(data.relatedConcepts?.length || 0) > 0 && (
+                <motion.section variants={itemVariants} className="space-y-3 pt-4 border-t border-white/5">
+                  <div className="flex items-center gap-2 text-white">
+                    <Link2 className="w-3.5 h-3.5 text-slate-500" />
+                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Related Concepts</h4>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {data.relatedConcepts?.map((concept, i) => (
+                      <button key={i} className="px-2 py-1 rounded-full text-[10px] bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10 hover:text-white hover:border-accent/40 transition-all flex items-center gap-1">
+                        {concept}
+                        <ChevronRight className="w-2.5 h-2.5" />
+                      </button>
+                    ))}
+                  </div>
+                </motion.section>
+              )}
+            </motion.div>
           )}
         </AnimatePresence>
 
-        {error && (
-          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-3">
-            <ShieldAlert className="w-6 h-6 shrink-0" />
-            <p>{error}. Please try again.</p>
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="p-5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex flex-col gap-4"
+            >
+              <div className="flex items-center gap-3">
+                <ShieldAlert className="w-6 h-6 shrink-0" />
+                <p>{error}</p>
+              </div>
+              <button 
+                onClick={fetchExplanation}
+                className="w-full py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 font-bold uppercase tracking-widest transition-all"
+              >
+                Try Again
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Follow-up Question Input */}

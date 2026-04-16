@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { 
   Code2, 
   Upload, 
@@ -8,22 +8,44 @@ import {
   Settings, 
   Search, 
   Monitor, 
-  BookMarked 
+  BookMarked,
+  Zap
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { useApp } from "@/providers/AppContext";
 import { LanguagePicker } from "./LanguagePicker";
 
 export function TopBar() {
   const { state, dispatch } = useApp();
+  const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <header className="h-14 border-b border-white/10 glass px-4 flex items-center justify-between z-50">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-            <Code2 className="text-black w-5 h-5" />
+    <header className="h-14 border-b border-white/10 bg-black/80 backdrop-blur-md flex items-center justify-between px-6 z-40">
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-[0_0_20px_rgba(224,255,79,0.4)]">
+              <Zap className="w-5 h-5 text-black fill-current" />
+            </div>
+            {state.isStreaming && (
+              <motion.div 
+                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-[-4px] border-2 border-accent rounded-xl"
+              />
+            )}
           </div>
-          <span className="font-heading font-bold text-lg tracking-tight">CODE MENTOR</span>
+          <div className="flex flex-col">
+            <h1 className="text-sm font-bold tracking-tighter text-white font-heading leading-tight italic">
+              CODE MENTOR
+            </h1>
+            <div className="flex items-center gap-1.5 leading-none">
+              <div className={`w-1.5 h-1.5 rounded-full ${state.isStreaming ? "bg-accent animate-pulse" : "bg-slate-700"}`} />
+              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                {state.isStreaming ? "Mentor is thinking..." : "System Ready"}
+              </span>
+            </div>
+          </div>
         </div>
         
         <div className="h-6 w-[1px] bg-white/10 mx-2" />

@@ -5,33 +5,29 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-console.log("GROQ_API_KEY detected:", !!process.env.GROQ_API_KEY);
-
-
 export const runtime = "edge";
 
 export async function POST(req: NextRequest) {
   try {
     const { code, lineStart, lineEnd, language, context, mode, conversationHistory } = await req.json();
 
-    const systemPrompt = `You are Code Mentor, an elite technical instructor. 
-Your goal is to explain specific lines of code in a way that feels premium, clear, and deeply technical yet accessible.
+    const systemPrompt = `You are Code Mentor, an elite technical instructor from a world-class engineering team. 
+Your goal is to explain specific lines of code in a way that feels premium, clear, authoritative, and deeply technical yet accessible.
 
-Explain lines ${lineStart} to ${lineEnd} of the provided ${language} code.
-Context of the full file:
-\`\`\`${language}
-${code}
-\`\`\`
+TONE: Authoritative, encouraging, and sophisticated. Use professional engineering terminology.
 
-Current Mode: ${mode}
+INSTRUCTIONS:
+1. Explain lines ${lineStart} to ${lineEnd} of the provided ${language} code with precision.
+2. In the [DEEP DIVE] section, always include a "Pro-Tip" or "Best Practice" detail related to performance, security, or readability.
+3. Use technical analogies (e.g., comparing a buffer to a queue at a cafe) when explaining complex logic.
 
 Respond ONLY in the following structured format with these exact labels:
 [LINE PREVIEW]
-Summarize the logic of the specific lines.
+Summarize the logic of the specific lines (1 sentence).
 [PLAIN ENGLISH]
-1-3 sentences for a beginner.
+1-2 sentences for a beginner, focused on the "Why".
 [DEEP DIVE]
-Technical breakdown of tokens, logic, and complexity.
+Technical breakdown of tokens, logic, and complexity. Include a Best Practice note.
 [LIVE EXAMPLE]
 A code snippet showing a related or alternate implementation.
 [RELATED CONCEPTS]

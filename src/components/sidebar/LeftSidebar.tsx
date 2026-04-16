@@ -45,18 +45,26 @@ export function LeftSidebar() {
             </div>
             
             <div className="space-y-1 ml-2">
-              <div className="flex items-center gap-2 p-1.5 rounded-md bg-accent/10 border border-accent/20">
-                <FileCode className="w-4 h-4 text-accent" />
-                <span className="text-sm text-white truncate">current_snippet.ts</span>
-              </div>
-              {/* More files could go here */}
+               {!state.code ? (
+                 <div className="p-8 text-center border border-dashed border-white/5 rounded-xl bg-white/[0.02]">
+                    <FileCode className="w-8 h-8 mx-auto mb-3 text-slate-700" />
+                    <p className="text-[11px] text-slate-600 font-medium">No files loaded</p>
+                 </div>
+               ) : (
+                <div className="flex items-center gap-2 p-1.5 rounded-md bg-accent/10 border border-accent/20">
+                  <FileCode className="w-4 h-4 text-accent" />
+                  <span className="text-sm text-white truncate">current_snippet.{state.language === "typescript" ? "ts" : "js"}</span>
+                </div>
+               )}
             </div>
 
             <div className="mt-8 border-t border-white/5 pt-4">
               <p className="text-[10px] text-slate-600 uppercase font-bold tracking-wider mb-2">Instructions</p>
-              <p className="text-xs text-slate-400 leading-relaxed px-1">
-                Paste code or upload a file. Click any line to get an instant AI explanation.
-              </p>
+              <div className="text-[11px] text-slate-500 space-y-2 leading-relaxed px-1">
+                <p>1. Paste your snippet into the editor.</p>
+                <p>2. Select a line to start mentoring.</p>
+                <p>3. Use <kbd className="bg-white/10 px-1 rounded text-white">Cmd+K</kbd> for shortcuts.</p>
+              </div>
             </div>
           </div>
         )}
@@ -64,13 +72,18 @@ export function LeftSidebar() {
         {activeTab === "history" && (
           <div className="space-y-2">
             {state.history.length === 0 ? (
-              <div className="text-center py-10 opacity-30">
-                <Clock className="w-10 h-10 mx-auto mb-2" />
-                <p className="text-xs">No history yet</p>
+              <div className="text-center py-20 px-4">
+                <div className="relative inline-block mb-4">
+                   <Clock className="w-12 h-12 text-white/5 mx-auto" />
+                   <div className="absolute inset-0 bg-accent/5 blur-xl rounded-full" />
+                </div>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Clean Slate</h4>
+                <p className="text-[11px] text-slate-600 leading-relaxed">Your recent mentorship sessions will appear here.</p>
               </div>
             ) : (
               state.history.map((item) => (
-                <div 
+                <motion.div 
+                  layout
                   key={item.id}
                   className="p-2 rounded-md hover:bg-white/5 border border-transparent hover:border-white/10 cursor-pointer group transition-all"
                   onClick={() => dispatch({ type: "SET_CODE", payload: item.code })}
@@ -80,7 +93,7 @@ export function LeftSidebar() {
                     <span className="text-[10px] text-slate-500 capitalize">{item.language}</span>
                     <span className="text-[10px] text-slate-600">{new Date(item.timestamp).toLocaleTimeString()}</span>
                   </div>
-                </div>
+                </motion.div>
               ))
             )}
           </div>
@@ -89,13 +102,21 @@ export function LeftSidebar() {
         {activeTab === "bookmarks" && (
           <div className="space-y-3">
              {state.bookmarks.length === 0 ? (
-              <div className="text-center py-10 opacity-30">
-                <Bookmark className="w-10 h-10 mx-auto mb-2" />
-                <p className="text-xs">Save lines to see them here</p>
+              <div className="text-center py-20 px-4">
+                <div className="relative inline-block mb-4">
+                   <Bookmark className="w-12 h-12 text-white/5 mx-auto" />
+                   <div className="absolute inset-0 bg-accent/5 blur-xl rounded-full" />
+                </div>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">No Saves</h4>
+                <p className="text-[11px] text-slate-600 leading-relaxed">Bookmarked lines and complex logic will be stored here for review.</p>
               </div>
             ) : (
               state.bookmarks.map((bookmark) => (
-                <div key={bookmark.id} className="p-2 rounded-md bg-white/5 border border-white/10 group">
+                <motion.div 
+                  layout
+                  key={bookmark.id} 
+                  className="p-2 rounded-md bg-white/5 border border-white/10 group"
+                >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-bold text-accent">L{bookmark.lineStart}-{bookmark.lineEnd}</span>
                     <button 
@@ -111,7 +132,7 @@ export function LeftSidebar() {
                   {bookmark.note && (
                      <p className="text-xs text-white bg-white/5 p-2 rounded">{bookmark.note}</p>
                   )}
-                </div>
+                </motion.div>
               ))
             )}
           </div>
