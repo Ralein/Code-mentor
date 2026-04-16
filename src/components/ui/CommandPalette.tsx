@@ -6,6 +6,7 @@ import { Search, Command, Zap, GraduationCap, Play, ShieldAlert, History as Hist
 import toast from "react-hot-toast";
 import { useApp } from "@/providers/AppContext";
 import { ChartsOverlay } from "./ChartsOverlay";
+import { jsPDF } from "jspdf";
 
 export function CommandPalette() {
   const { state, dispatch } = useApp();
@@ -69,19 +70,35 @@ export function CommandPalette() {
         toast.success("History cleared!");
         break;
       case "history":
-        toast("Check the Left Sidebar History tab!", { icon: "🕒", style: { background: "#171717", color: "#fff" } });
+        dispatch({ type: "SET_SIDEBAR_TAB", payload: "history" });
+        toast.success("Opened History tab");
         break;
       case "share":
-        toast.success("Share link copied to clipboard!");
+        if (!state.code) {
+           toast.error("No code to share!");
+        } else {
+           navigator.clipboard.writeText(state.code);
+           toast.success("Code copied to clipboard!");
+        }
         break;
       case "stats":
         setIsChartsOpen(true);
         break;
       case "export":
-        toast("PDF Export started...", { icon: "📄" });
+        if (!state.code) {
+           toast.error("No code to export!");
+        } else {
+           const doc = new jsPDF();
+           doc.setFont("courier", "normal");
+           doc.setFontSize(10);
+           const lines = doc.splitTextToSize(state.code, 180);
+           doc.text(lines, 15, 20);
+           doc.save("code-mentor-export.pdf");
+           toast.success("PDF exported successfully!");
+        }
         break;
       case "settings":
-        toast("Settings opening...", { icon: "⚙️" });
+        dispatch({ type: "SET_SETTINGS_OPEN", payload: true });
         break;
       default:
         toast(`Mode changed to ${cmdId}`);

@@ -7,6 +7,7 @@ import { CodeEditor } from "@/components/editor/CodeEditor";
 import { StatusBar } from "@/components/editor/StatusBar";
 import { CommandPalette } from "@/components/ui/CommandPalette";
 import { ChatBot } from "@/components/chat/ChatBot";
+import { SettingsModal } from "@/components/ui/SettingsModal";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
@@ -45,6 +46,7 @@ export default function Home() {
       {/* Floating UI */}
       <ChatBot />
       <CommandPalette />
+      <SettingsModal />
 
       {/* Floating Toggle Buttons for Sidebars (Responsive/UX) */}
       <button 

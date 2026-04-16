@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 export function LeftSidebar() {
   const { state, dispatch } = useApp();
-  const [activeTab, setActiveTab] = useState<"files" | "history" | "bookmarks">("files");
+  const activeTab = state.activeSidebarTab;
 
   return (
     <div className="flex flex-col h-full bg-[#0a0a0a]">
@@ -20,7 +20,7 @@ export function LeftSidebar() {
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => dispatch({ type: "SET_SIDEBAR_TAB", payload: tab.id as any })}
             className={`flex-1 flex flex-col items-center py-2 rounded-md transition-all ${
               activeTab === tab.id 
                 ? "bg-white/10 text-accent" 

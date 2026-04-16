@@ -36,6 +36,8 @@ interface AppState {
   messages: Message[];
   isChatOpen: boolean;
   activeExplanation: any | null;
+  activeSidebarTab: "files" | "history" | "bookmarks";
+  isSettingsOpen: boolean;
 }
 
 type AppAction =
@@ -52,7 +54,9 @@ type AppAction =
   | { type: "SET_CHAT_OPEN"; payload: boolean }
   | { type: "SET_ACTIVE_EXPLANATION"; payload: any | null }
   | { type: "CLEAR_MESSAGES" }
-  | { type: "CLEAR_HISTORY" };
+  | { type: "CLEAR_HISTORY" }
+  | { type: "SET_SIDEBAR_TAB"; payload: "files" | "history" | "bookmarks" }
+  | { type: "SET_SETTINGS_OPEN"; payload: boolean };
 
 const initialState: AppState = {
   code: "",
@@ -66,6 +70,8 @@ const initialState: AppState = {
   messages: [],
   isChatOpen: false,
   activeExplanation: null,
+  activeSidebarTab: "files",
+  isSettingsOpen: false,
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -98,6 +104,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, messages: [] };
     case "CLEAR_HISTORY":
       return { ...state, history: [] };
+    case "SET_SIDEBAR_TAB":
+      return { ...state, activeSidebarTab: action.payload };
+    case "SET_SETTINGS_OPEN":
+      return { ...state, isSettingsOpen: action.payload };
     default:
       return state;
   }

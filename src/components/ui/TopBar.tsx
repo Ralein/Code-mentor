@@ -17,6 +17,18 @@ import { LanguagePicker } from "./LanguagePicker";
 export function TopBar() {
   const { state, dispatch } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      dispatch({ type: "SET_CODE", payload: content });
+    };
+    reader.readAsText(file);
+  };
 
   const isMismatch = useMemo(() => {
     if (!state.code) return false;
@@ -85,16 +97,39 @@ export function TopBar() {
         </button>
 
         <div className="flex items-center gap-1">
-          <button className="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-md transition-all">
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileUpload} 
+            className="hidden" 
+            accept=".js,.ts,.jsx,.tsx,.py,.html,.css,.json,text/plain" 
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-md transition-all"
+            title="Upload File"
+          >
             <Upload className="w-5 h-5" />
           </button>
-          <button className="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-md transition-all">
+          <button 
+            onClick={() => dispatch({ type: "SET_SIDEBAR_TAB", payload: "bookmarks" })}
+            className="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-md transition-all"
+            title="Saved Snippets"
+          >
             <BookMarked className="w-5 h-5" />
           </button>
-          <button className="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-md transition-all">
+          <button 
+            onClick={() => dispatch({ type: "SET_SIDEBAR_TAB", payload: "history" })}
+            className="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-md transition-all"
+            title="History"
+          >
             <History className="w-5 h-5" />
           </button>
-          <button className="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-md transition-all">
+          <button 
+            onClick={() => dispatch({ type: "SET_SETTINGS_OPEN", payload: true })}
+            className="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-md transition-all"
+            title="Settings"
+          >
             <Settings className="w-5 h-5" />
           </button>
         </div>
