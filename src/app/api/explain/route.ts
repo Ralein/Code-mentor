@@ -5,6 +5,9 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
+console.log("GROQ_API_KEY detected:", !!process.env.GROQ_API_KEY);
+
+
 export const runtime = "edge";
 
 export async function POST(req: NextRequest) {
