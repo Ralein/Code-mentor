@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Command, Zap, GraduationCap, Play, ShieldAlert, History as HistoryIcon, Save, Settings, Trash2, Share2, Download, BarChart3 } from "lucide-react";
+import { Search, Command, Zap, GraduationCap, Play, ShieldAlert, History as HistoryIcon, Save, Trash2, Share2, Download, BarChart3 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useApp } from "@/providers/AppContext";
 import { ChartsOverlay } from "./ChartsOverlay";
@@ -30,7 +30,6 @@ export function CommandPalette() {
     
     { id: "stats", icon: BarChart3, label: "View Analytics Stats", group: "System" },
     { id: "export", icon: Download, label: "Export to PDF", group: "System" },
-    { id: "settings", icon: Settings, label: "Settings", group: "System" },
   ];
 
   const filteredCommands = commands.filter(c => 
@@ -96,9 +95,6 @@ export function CommandPalette() {
            doc.save("code-mentor-export.pdf");
            toast.success("PDF exported successfully!");
         }
-        break;
-      case "settings":
-        dispatch({ type: "SET_SETTINGS_OPEN", payload: true });
         break;
       default:
         toast(`Mode changed to ${cmdId}`);

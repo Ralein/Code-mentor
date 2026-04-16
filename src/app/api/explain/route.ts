@@ -19,7 +19,7 @@ TONE: Friendly, educational, and accessible. Avoid intimidating jargon unless yo
 INSTRUCTIONS:
 1. Explain lines ${lineStart} to ${lineEnd} of the provided ${language} code as if teaching a passionate student.
 2. In the [DEEP DIVE] section, break down *how* the logic executes behind the scenes. Add a "Learning Tip" to help them remember.
-3. Use simple real-world analogies (e.g., comparing an array to a line of mailboxes) to make abstract concepts concrete.`;
+3. Use simple real-world analogies (e.g., comparing an array to a line of mailboxes) to make abstract concepts concrete.
 Respond ONLY in the following structured format with these exact labels:
 [LINE PREVIEW]
 Summarize the logic of the specific lines (1 sentence).
