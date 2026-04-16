@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { 
-  Code2, 
   Upload, 
   History, 
   Settings, 
   Search, 
-  Monitor, 
   BookMarked,
-  Zap
+  Zap,
+  ShieldAlert
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useApp } from "@/providers/AppContext";
@@ -18,6 +17,16 @@ import { LanguagePicker } from "./LanguagePicker";
 export function TopBar() {
   const { state, dispatch } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
+
+  const isMismatch = useMemo(() => {
+    if (!state.code) return false;
+    const isPython = state.code.includes("def ") || state.code.includes("import ") && !state.code.includes("from '");
+    const isJS = state.code.includes("const ") || (state.code.includes("function ") && !state.code.includes("def "));
+    
+    if (isPython && state.language === "javascript") return true;
+    if (isJS && state.language === "python") return true;
+    return false;
+  }, [state.code, state.language]);
 
   return (
     <header className="h-14 border-b border-white/10 bg-black/80 backdrop-blur-md flex items-center justify-between px-6 z-40">
@@ -50,7 +59,19 @@ export function TopBar() {
         
         <div className="h-6 w-[1px] bg-white/10 mx-2" />
         
-        <LanguagePicker />
+        <div className="flex items-center gap-3">
+          <LanguagePicker />
+          {isMismatch && (
+             <motion.div 
+               initial={{ opacity: 0, scale: 0.9 }}
+               animate={{ opacity: 1, scale: 1 }}
+               className="flex items-center gap-1.5 px-2 py-1 rounded bg-red-500/10 border border-red-500/20 text-red-400"
+             >
+               <ShieldAlert className="w-3 h-3" />
+               <span className="text-[8px] font-bold uppercase tracking-tighter">Mode Mismatch</span>
+             </motion.div>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-3">

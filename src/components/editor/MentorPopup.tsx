@@ -70,17 +70,44 @@ export function MentorPopup({ position, onClose }: MentorPopupProps) {
 
       if (!resp.ok) throw new Error("Mentor connection lost");
 
-      const raw = await resp.text();
-      // Logic to parse the structured [LABEL] content
-      const parsed = {
-        preview: raw.match(/\[LINE PREVIEW\]\n([\s\S]*?)(?=\n\[|$)/)?.[1]?.trim(),
-        plainEnglish: raw.match(/\[PLAIN ENGLISH\]\n([\s\S]*?)(?=\n\[|$)/)?.[1]?.trim(),
-        deepDive: raw.match(/\[DEEP DIVE\]\n([\s\S]*?)(?=\n\[|$)/)?.[1]?.trim(),
-        example: raw.match(/\[LIVE EXAMPLE\]\n([\s\S]*?)(?=\n\[|$)/)?.[1]?.trim(),
-      };
+      const reader = resp.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
+
+      if (!reader) throw new Error("Could not initialize stream");
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const dataStr = line.slice(6);
+            if (dataStr === "[DONE]") break;
+            try {
+              const { content } = JSON.parse(dataStr);
+              accumulatedText += content;
+
+              // Partial updates for streaming feel
+              const parsed = {
+                plainEnglish: accumulatedText.match(/\[PLAIN ENGLISH\]\n?([\s\S]*?)(?=\n?\[|$)/)?.[1]?.trim(),
+                deepDive: accumulatedText.match(/\[DEEP DIVE\]\n?([\s\S]*?)(?=\n?\[|$)/)?.[1]?.trim(),
+                example: accumulatedText.match(/\[LIVE EXAMPLE\]\n?([\s\S]*?)(?=\n?\[|$)/)?.[1]?.trim(),
+              };
+              
+              setData(parsed);
+              setIsStreaming(false); // We hide skeletons as soon as we have any content
+            } catch (e) {
+              // Ignore partial JSON parse errors
+            }
+          }
+        }
+      }
       
-      setData(parsed);
-      dispatch({ type: "SET_ACTIVE_EXPLANATION", payload: parsed });
+      dispatch({ type: "SET_ACTIVE_EXPLANATION", payload: accumulatedText });
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -108,7 +135,7 @@ export function MentorPopup({ position, onClose }: MentorPopupProps) {
 
       <div className="max-h-[300px] overflow-y-auto custom-scrollbar space-y-4">
         <AnimatePresence mode="wait">
-          {isStreaming ? (
+          {(!data?.plainEnglish && !error) ? (
             <motion.div key="skeletons" variants={containerVariants} initial="hidden" animate="show" className="space-y-4">
               <Skeleton height="40px" />
               <Skeleton height="80px" />
@@ -117,41 +144,50 @@ export function MentorPopup({ position, onClose }: MentorPopupProps) {
             <motion.div key="error" className="py-4 text-center">
               <ShieldAlert className="w-8 h-8 text-red-500/50 mx-auto mb-2" />
               <p className="text-xs text-red-400">{error}</p>
-              <button onClick={fetchExplanation} className="mt-2 text-[10px] text-accent font-bold uppercase tracking-widest">Retry</button>
+              <button onClick={() => fetchExplanation()} className="mt-2 text-[10px] text-accent font-bold uppercase tracking-widest">Retry</button>
             </motion.div>
           ) : data ? (
             <motion.div key="content" variants={containerVariants} initial="hidden" animate="show" className="space-y-4">
-              <motion.section variants={itemVariants} className="space-y-2">
-                <p className="text-[11px] text-white font-medium leading-relaxed bg-accent/5 p-2 rounded-lg border border-accent/10">
-                  {data.plainEnglish}
-                </p>
-              </motion.section>
+              {data.plainEnglish && (
+                <motion.section variants={itemVariants} className="space-y-2">
+                  <p className="text-[11px] text-white font-medium leading-relaxed bg-accent/5 p-3 rounded-xl border border-accent/10 shadow-[inner_0_0_20px_rgba(224,255,79,0.05)]">
+                    {data.plainEnglish}
+                  </p>
+                </motion.section>
+              )}
 
-              <motion.section variants={itemVariants} className="space-y-2">
-                <div className="flex items-center gap-2">
-                   <Terminal className="w-3 h-3 text-purple-400" />
-                   <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Deep Dive</h4>
-                </div>
-                <p className="text-[10px] text-slate-400 font-mono leading-relaxed">
-                  {data.deepDive}
-                </p>
-              </motion.section>
+              {data.deepDive && (
+                <motion.section variants={itemVariants} className="space-y-2">
+                  <div className="flex items-center gap-2 px-1">
+                     <Terminal className="w-3 h-3 text-purple-400" />
+                     <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Deep Dive Analysis</h4>
+                  </div>
+                  <div className="bg-white/[0.02] p-3 rounded-xl border border-white/5">
+                    <p className="text-[10px] text-slate-400 font-mono leading-relaxed">
+                      {data.deepDive}
+                    </p>
+                  </div>
+                </motion.section>
+              )}
 
               {data.example && (
                 <motion.section variants={itemVariants} className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between px-1">
                     <div className="flex items-center gap-2">
                        <Lightbulb className="w-3 h-3 text-amber-400" />
-                       <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Example</h4>
+                       <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Pro Implementation</h4>
                     </div>
-                    <button onClick={() => {
+                    <button 
+                      onClick={() => {
                         navigator.clipboard.writeText(data.example);
-                        toast.success("Copied solution");
-                    }}>
-                      <Copy className="w-3 h-3 text-slate-600 hover:text-white transition-colors" />
+                        toast.success("Solution copied");
+                      }}
+                      className="p-1.5 hover:bg-white/10 rounded-md transition-colors group"
+                    >
+                      <Copy className="w-3 h-3 text-slate-600 group-hover:text-white" />
                     </button>
                   </div>
-                  <pre className="bg-black/60 p-2 rounded-lg border border-white/5 text-[9px] font-mono text-accent/80 overflow-x-auto">
+                  <pre className="bg-black/80 p-3 rounded-xl border border-white/5 text-[9px] font-mono text-accent/90 overflow-x-auto shadow-xl">
                     <code>{data.example}</code>
                   </pre>
                 </motion.section>

@@ -83,7 +83,14 @@ export function CodeEditor() {
   // Handle line click logic
   const handleEditorClick = useCallback((e: React.MouseEvent) => {
     if (!editorView) return;
-    
+    // Check if user has actually highlighted text (not just a cursor click)
+    const { from, to } = editorView.state.selection.main;
+    if (from === to) {
+      dispatch({ type: "SET_SELECTED_RANGE", payload: null });
+      setPopupPos(null);
+      return; // Exit early if nothing is highlighted
+    }
+
     // Simple logic to detect line from click position or selection
     const line = editorView.state.doc.lineAt(editorView.state.selection.main.head);
     
@@ -91,10 +98,16 @@ export function CodeEditor() {
     const rect = e.currentTarget.getBoundingClientRect();
     const coords = editorView.coordsAtPos(line.from);
     if (coords) {
-      setPopupPos({ 
-        x: coords.right - rect.left + 20, 
-        y: coords.top - rect.top 
-      });
+      const x = coords.right - rect.left + 20;
+      let y = coords.top - rect.top;
+
+      // Flip up if near bottom
+      const editorHeight = rect.height;
+      if (y > editorHeight * 0.6) {
+        y = y - 350; // Estimated popup height
+      }
+
+      setPopupPos({ x, y });
     }
 
     // Only update if it's a new line or intentional selection change
