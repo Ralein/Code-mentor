@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Command, Zap, Book, Quiz, Play, ShieldAlert, History as HistoryIcon } from "lucide-react";
+import { Search, Command, Zap, GraduationCap, Play, ShieldAlert, History as HistoryIcon } from "lucide-react";
 
 export function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +10,7 @@ export function CommandPalette() {
 
   const commands = [
     { id: "explore", icon: Zap, label: "Explore Mode", group: "Modes" },
-    { id: "quiz", icon: Search, label: "Quiz Mode", group: "Modes" },
+    { id: "quiz", icon: GraduationCap, label: "Quiz Mode", group: "Modes" },
     { id: "walk", icon: Play, label: "Walk-through Mode", group: "Modes" },
     { id: "challenge", icon: ShieldAlert, label: "Challenge Mode", group: "Modes" },
     { id: "history", icon: HistoryIcon, label: "Show History", group: "System" },
