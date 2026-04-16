@@ -22,6 +22,8 @@ import { StateField, StateEffect, RangeSetBuilder } from "@codemirror/state";
 import { gutter, GutterMarker } from "@codemirror/view";
 import { analyzeCodeComplexity } from "@/lib/complexity";
 import { MatrixRain } from "@/components/ui/MatrixRain";
+import { MentorPopup } from "./MentorPopup";
+import { AnimatePresence } from "framer-motion";
 
 class ComplexityMarker extends GutterMarker {
   constructor(public level: string) { super(); }
@@ -48,6 +50,7 @@ const accentActive = Decoration.line({
 export function CodeEditor() {
   const { state, dispatch } = useApp();
   const [editorView, setEditorView] = useState<EditorView | null>(null);
+  const [popupPos, setPopupPos] = useState<{ x: number, y: number } | null>(null);
 
   // Map state language to CodeMirror extension
   const languageExtension = useMemo(() => {
@@ -84,6 +87,16 @@ export function CodeEditor() {
     // Simple logic to detect line from click position or selection
     const line = editorView.state.doc.lineAt(editorView.state.selection.main.head);
     
+    // Calculate coordinates for popup
+    const rect = e.currentTarget.getBoundingClientRect();
+    const coords = editorView.coordsAtPos(line.from);
+    if (coords) {
+      setPopupPos({ 
+        x: coords.right - rect.left + 20, 
+        y: coords.top - rect.top 
+      });
+    }
+
     // Only update if it's a new line or intentional selection change
     dispatch({ 
       type: "SET_SELECTED_RANGE", 
@@ -175,6 +188,19 @@ export function CodeEditor() {
            </div>
         </div>
       )}
+
+      {/* Floating Analysis Popup */}
+      <AnimatePresence>
+        {state.selectedRange && popupPos && (
+          <MentorPopup 
+            position={popupPos} 
+            onClose={() => {
+              dispatch({ type: "SET_SELECTED_RANGE", payload: null });
+              setPopupPos(null);
+            }} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

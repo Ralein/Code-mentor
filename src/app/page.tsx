@@ -4,14 +4,13 @@ import React, { useState } from "react";
 import { TopBar } from "@/components/ui/TopBar";
 import { LeftSidebar } from "@/components/sidebar/LeftSidebar";
 import { CodeEditor } from "@/components/editor/CodeEditor";
-import { ExplanationPanel } from "@/components/explanation/ExplanationPanel";
 import { StatusBar } from "@/components/editor/StatusBar";
 import { CommandPalette } from "@/components/ui/CommandPalette";
+import { ChatBot } from "@/components/chat/ChatBot";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [isLeftSidebarOpen, setLeftSidebarOpen] = useState(true);
-  const [isRightSidebarOpen, setRightSidebarOpen] = useState(true);
 
   return (
     <main className="flex flex-col h-screen bg-black overflow-hidden font-sans">
@@ -41,40 +40,19 @@ export default function Home() {
           </div>
           <StatusBar />
         </div>
-
-        {/* Right Sidebar - AI Explanations */}
-        <AnimatePresence initial={false}>
-          {isRightSidebarOpen && (
-            <motion.aside
-              key="right-sidebar"
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 360, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="border-l border-white/10 glass overflow-hidden flex flex-col"
-            >
-              <ExplanationPanel />
-            </motion.aside>
-          )}
-        </AnimatePresence>
       </div>
+
+      {/* Floating UI */}
+      <ChatBot />
+      <CommandPalette />
 
       {/* Floating Toggle Buttons for Sidebars (Responsive/UX) */}
       <button 
         onClick={() => setLeftSidebarOpen(!isLeftSidebarOpen)}
         className={`absolute bottom-10 left-4 z-50 p-2 rounded-full glass border border-white/10 text-slate-400 hover:text-accent transition-all ${isLeftSidebarOpen ? "opacity-0 hover:opacity-100" : "opacity-100"}`}
       >
-        <span className="text-[10px] font-bold">FILES</span>
+        <span className="text-[10px] font-bold uppercase">Files</span>
       </button>
-      
-      <button 
-        onClick={() => setRightSidebarOpen(!isRightSidebarOpen)}
-        className={`absolute bottom-10 right-4 z-50 p-2 rounded-full glass border border-white/10 text-slate-400 hover:text-accent transition-all ${isRightSidebarOpen ? "opacity-0 hover:opacity-100" : "opacity-100"}`}
-      >
-        <span className="text-[10px] font-bold">AI</span>
-      </button>
-
-      <CommandPalette />
     </main>
   );
 }

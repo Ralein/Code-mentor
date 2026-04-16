@@ -19,6 +19,11 @@ interface Bookmark {
   note: string;
 }
 
+export interface Message {
+  role: "user" | "assistant" | "system";
+  content: string;
+}
+
 interface AppState {
   code: string;
   language: string;
@@ -28,6 +33,9 @@ interface AppState {
   isStreaming: boolean;
   history: CodeSnippet[];
   bookmarks: Bookmark[];
+  messages: Message[];
+  isChatOpen: boolean;
+  activeExplanation: any | null;
 }
 
 type AppAction =
@@ -39,7 +47,11 @@ type AppAction =
   | { type: "SET_STREAMING"; payload: boolean }
   | { type: "ADD_TO_HISTORY"; payload: CodeSnippet }
   | { type: "ADD_BOOKMARK"; payload: Bookmark }
-  | { type: "REMOVE_BOOKMARK"; payload: string };
+  | { type: "REMOVE_BOOKMARK"; payload: string }
+  | { type: "SEND_MESSAGE"; payload: Message }
+  | { type: "SET_CHAT_OPEN"; payload: boolean }
+  | { type: "SET_ACTIVE_EXPLANATION"; payload: any | null }
+  | { type: "CLEAR_MESSAGES" };
 
 const initialState: AppState = {
   code: "",
@@ -50,6 +62,9 @@ const initialState: AppState = {
   isStreaming: false,
   history: [],
   bookmarks: [],
+  messages: [],
+  isChatOpen: false,
+  activeExplanation: null,
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -72,6 +87,14 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, bookmarks: [...state.bookmarks, action.payload] };
     case "REMOVE_BOOKMARK":
       return { ...state, bookmarks: state.bookmarks.filter(b => b.id !== action.payload) };
+    case "SEND_MESSAGE":
+      return { ...state, messages: [...state.messages, action.payload] };
+    case "SET_CHAT_OPEN":
+      return { ...state, isChatOpen: action.payload };
+    case "SET_ACTIVE_EXPLANATION":
+      return { ...state, activeExplanation: action.payload };
+    case "CLEAR_MESSAGES":
+      return { ...state, messages: [] };
     default:
       return state;
   }
